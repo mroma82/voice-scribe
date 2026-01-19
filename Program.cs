@@ -3,7 +3,10 @@ using digital_recorder.Services;
 const string InputFolder = "input";
 const string CompletedFolder = "completed";
 const string FailedFolder = "failed";
-const string OutputFile = "output/transcriptions.txt";
+
+var logseqPath = Path.Combine(
+    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+    "Notes");
 
 Console.WriteLine("Audio WAV File Processor");
 Console.WriteLine("========================\n");
@@ -16,11 +19,17 @@ if (string.IsNullOrWhiteSpace(apiKey))
     return 1;
 }
 
+if (!Directory.Exists(logseqPath))
+{
+    Console.WriteLine($"Error: Logseq graph not found at '{logseqPath}'");
+    return 1;
+}
+
 Console.WriteLine($"Input folder: {InputFolder}");
-Console.WriteLine($"Output file: {OutputFile}\n");
+Console.WriteLine($"Logseq graph: {logseqPath}\n");
 
 var transcriptionService = new AudioTranscriptionService(apiKey);
-var outputService = new TranscriptionOutputService(OutputFile);
+var outputService = new TranscriptionOutputService(logseqPath);
 var fileProcessor = new FileProcessorService(
     InputFolder,
     CompletedFolder,

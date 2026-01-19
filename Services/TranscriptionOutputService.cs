@@ -1,55 +1,88 @@
 using digital_recorder.Models;
-using digital_recorder.Utilities;
 
 namespace digital_recorder.Services;
 
 public class TranscriptionOutputService
 {
-    private readonly string _outputFilePath;
+    private const string AudioRecordingsHeading = "## Audio Recordings";
+    private readonly string _journalsFolder;
     private readonly object _fileLock = new();
 
-    public TranscriptionOutputService(string outputFilePath)
+    public TranscriptionOutputService(string logseqGraphPath)
     {
-        _outputFilePath = outputFilePath;
-        EnsureOutputDirectoryExists();
+        _journalsFolder = Path.Combine(logseqGraphPath, "journals");
+        EnsureJournalsFolderExists();
     }
 
-    private void EnsureOutputDirectoryExists()
+    private void EnsureJournalsFolderExists()
     {
-        var directory = Path.GetDirectoryName(_outputFilePath);
-        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+        if (!Directory.Exists(_journalsFolder))
         {
-            Directory.CreateDirectory(directory);
+            Directory.CreateDirectory(_journalsFolder);
         }
     }
 
     public void AppendTranscription(TranscriptionResult result)
     {
-        var formattedEntry = FormatTranscriptionEntry(result);
+        var journalPath = GetJournalPath(result.RecordingTimestamp);
+        var timeHeading = result.RecordingTimestamp.ToString("h:mm:ss tt");
+        var entry = FormatTranscriptionEntry(timeHeading, result.TranscribedText);
 
         lock (_fileLock)
         {
-            File.AppendAllText(_outputFilePath, formattedEntry);
+            AppendToJournal(journalPath, entry);
         }
     }
 
-    private static string FormatTranscriptionEntry(TranscriptionResult result)
+    private string GetJournalPath(DateTime date)
     {
-        var separator = new string('=', 60);
-        var lineSeparator = new string('-', 60);
-        var formattedTimestamp = FileNameParser.FormatTimestampForDisplay(result.RecordingTimestamp);
-        var processedTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        var fileName = date.ToString("yyyy_MM_dd") + ".md";
+        return Path.Combine(_journalsFolder, fileName);
+    }
 
-        return $"""
-                {separator}
-                Recording: {result.SourceFileName}
-                Timestamp: {formattedTimestamp}
-                Processed: {processedTime}
-                {lineSeparator}
+    private void AppendToJournal(string journalPath, string entry)
+    {
+        if (!File.Exists(journalPath))
+        {
+            File.WriteAllText(journalPath, $"- {AudioRecordingsHeading}\n{entry}");
+            return;
+        }
 
-                {result.TranscribedText}
+        var content = File.ReadAllText(journalPath);
 
+        if (content.Contains(AudioRecordingsHeading))
+        {
+            var insertIndex = FindInsertionPoint(content);
+            content = content.Insert(insertIndex, entry);
+        }
+        else
+        {
+            content = content.TrimEnd() + $"\n- {AudioRecordingsHeading}\n{entry}";
+        }
 
-                """;
+        File.WriteAllText(journalPath, content);
+    }
+
+    private int FindInsertionPoint(string content)
+    {
+        var headingIndex = content.IndexOf(AudioRecordingsHeading, StringComparison.Ordinal);
+        var afterHeading = headingIndex + AudioRecordingsHeading.Length;
+
+        var nextTopLevelBullet = content.IndexOf("\n- ", afterHeading, StringComparison.Ordinal);
+
+        if (nextTopLevelBullet == -1)
+        {
+            return content.Length;
+        }
+
+        return nextTopLevelBullet;
+    }
+
+    private static string FormatTranscriptionEntry(string timeHeading, string transcribedText)
+    {
+        var lines = transcribedText.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        var formattedLines = string.Join("\n", lines.Select(line => $"\t\t- {line.Trim()}"));
+
+        return $"\t- ### {timeHeading}\n{formattedLines}\n";
     }
 }
