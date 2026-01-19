@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using digital_recorder.Models;
 using digital_recorder.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace digital_recorder.Services;
 
@@ -11,19 +12,22 @@ public class FileProcessorService
     private readonly string _failedFolder;
     private readonly AudioTranscriptionService _transcriptionService;
     private readonly TranscriptionOutputService _outputService;
+    private readonly ILogger<FileProcessorService> _logger;
 
     public FileProcessorService(
         string inputFolder,
         string completedFolder,
         string failedFolder,
         AudioTranscriptionService transcriptionService,
-        TranscriptionOutputService outputService)
+        TranscriptionOutputService outputService,
+        ILogger<FileProcessorService> logger)
     {
         _inputFolder = inputFolder;
         _completedFolder = completedFolder;
         _failedFolder = failedFolder;
         _transcriptionService = transcriptionService;
         _outputService = outputService;
+        _logger = logger;
 
         EnsureDirectoriesExist();
     }
@@ -45,11 +49,11 @@ public class FileProcessorService
 
         if (wavFiles.Count == 0)
         {
-            Console.WriteLine("No WAV files found in input folder.");
+            _logger.LogInformation("No WAV files found in input folder");
             return (0, 0);
         }
 
-        Console.WriteLine($"Found {wavFiles.Count} WAV file(s) to process.");
+        _logger.LogInformation("Found {Count} WAV file(s) to process", wavFiles.Count);
 
         int processed = 0;
         int failed = 0;
@@ -59,19 +63,19 @@ public class FileProcessorService
             cancellationToken.ThrowIfCancellationRequested();
 
             var fileName = Path.GetFileName(filePath);
-            Console.WriteLine($"\nProcessing: {fileName}");
+            _logger.LogInformation("Processing: {FileName}", fileName);
 
             var success = await ProcessFileAsync(filePath, cancellationToken);
 
             if (success)
             {
                 processed++;
-                Console.WriteLine($"  ✓ Completed successfully");
+                _logger.LogInformation("Completed successfully: {FileName}", fileName);
             }
             else
             {
                 failed++;
-                Console.WriteLine($"  ✗ Failed");
+                _logger.LogWarning("Failed: {FileName}", fileName);
             }
         }
 
@@ -87,7 +91,7 @@ public class FileProcessorService
             var timestamp = FileNameParser.TryParseTimestamp(fileName);
             if (timestamp is null)
             {
-                Console.WriteLine($"  Error: Invalid filename format - expected R followed by yyyyMMddHHmmss");
+                _logger.LogError("Invalid filename format for {FileName} - expected R followed by yyyyMMddHHmmss", fileName);
                 MoveToFailed(filePath, fileName);
                 return false;
             }
@@ -98,7 +102,7 @@ public class FileProcessorService
 
             if (string.IsNullOrWhiteSpace(transcribedText))
             {
-                Console.WriteLine($"  Error: Empty transcription result");
+                _logger.LogError("Empty transcription result for {FileName}", fileName);
                 MoveToFailed(filePath, fileName);
                 return false;
             }
@@ -111,14 +115,14 @@ public class FileProcessorService
             );
 
             _outputService.AppendTranscription(result);
-            Console.WriteLine($"  Transcription saved ({stopwatch.Elapsed.TotalSeconds:F1}s)");
+            _logger.LogDebug("Transcription saved for {FileName} in {Duration:F1}s", fileName, stopwatch.Elapsed.TotalSeconds);
 
             MoveToCompleted(filePath, fileName);
             return true;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  Error: {ex.Message}");
+            _logger.LogError(ex, "Error processing {FileName}", fileName);
             MoveToFailed(filePath, fileName);
             return false;
         }
