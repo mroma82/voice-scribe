@@ -1,52 +1,35 @@
-using System.Text;
-using Whisper.net;
+using OpenAI.Audio;
 
 namespace digital_recorder.Services;
 
-public sealed class AudioTranscriptionService : IDisposable
+public sealed class AudioTranscriptionService
 {
-    private readonly WhisperFactory _whisperFactory;
-    private bool _disposed;
+    private readonly AudioClient _audioClient;
 
-    public AudioTranscriptionService(string modelPath)
+    public AudioTranscriptionService(string apiKey)
     {
-        if (!File.Exists(modelPath))
+        if (string.IsNullOrWhiteSpace(apiKey))
         {
-            throw new FileNotFoundException($"Whisper model not found at: {modelPath}", modelPath);
+            throw new ArgumentException("OpenAI API key is required", nameof(apiKey));
         }
 
-        _whisperFactory = WhisperFactory.FromPath(modelPath);
+        _audioClient = new AudioClient("whisper-1", apiKey);
     }
 
     public async Task<string> TranscribeAsync(string filePath, CancellationToken cancellationToken = default)
     {
-        ObjectDisposedException.ThrowIf(_disposed, this);
-
         if (!File.Exists(filePath))
         {
             throw new FileNotFoundException($"Audio file not found: {filePath}", filePath);
         }
 
-        using var processor = _whisperFactory.CreateBuilder()
-            .WithLanguage("auto")
-            .Build();
-
         await using var fileStream = File.OpenRead(filePath);
 
-        var transcription = new StringBuilder();
+        var result = await _audioClient.TranscribeAudioAsync(
+            fileStream,
+            Path.GetFileName(filePath),
+            cancellationToken: cancellationToken);
 
-        await foreach (var segment in processor.ProcessAsync(fileStream, cancellationToken))
-        {
-            transcription.Append(segment.Text);
-        }
-
-        return transcription.ToString().Trim();
-    }
-
-    public void Dispose()
-    {
-        if (_disposed) return;
-        _whisperFactory.Dispose();
-        _disposed = true;
+        return result.Value.Text.Trim();
     }
 }

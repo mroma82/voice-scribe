@@ -488,4 +488,6 @@ data/
 input/
 failed/
 output/
+completed/
 ggml-base.bin
+
