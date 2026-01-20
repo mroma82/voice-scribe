@@ -118,13 +118,14 @@ public class TranscriptionOutputService
             var template = File.ReadAllText(_journalTemplatePath);
             
             // ensure template ends with newline for proper formatting
-            if (!template.EndsWith('\n'))
+            if (!template.EndsWith("\n") && !template.EndsWith("\r\n"))
             {
                 template += "\n";
             }
             
-            // if template doesn't contain the audio recordings heading, append it
-            if (!template.Contains(AudioRecordingsHeading))
+            // if template doesn't contain the audio recordings heading as a list item, append it
+            if (!template.Contains($"- {AudioRecordingsHeading}") && 
+                !template.Contains($"* {AudioRecordingsHeading}"))
             {
                 template += $"- {AudioRecordingsHeading}\n";
             }
