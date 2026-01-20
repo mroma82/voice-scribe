@@ -9,13 +9,15 @@ public class TranscriptionOutputService
 
     // fields
     private readonly string _journalsFolder;
+    private readonly string? _journalTemplatePath;
     private readonly object _fileLock = new();
 
     // new
-    public TranscriptionOutputService(string logseqGraphPath)
+    public TranscriptionOutputService(string logseqGraphPath, string? journalTemplatePath = null)
     {
         // find the journals path
         _journalsFolder = Path.Combine(logseqGraphPath, "journals");
+        _journalTemplatePath = journalTemplatePath;
 
         // ensure it exists
         EnsureJournalsFolderExists();
@@ -62,7 +64,8 @@ public class TranscriptionOutputService
         // if no journal file, create it
         if (!File.Exists(journalPath))
         {
-            File.WriteAllText(journalPath, $"- {AudioRecordingsHeading}\n{entry}");
+            var initialContent = GetInitialJournalContent();
+            File.WriteAllText(journalPath, initialContent + entry);
             return;
         }
 
@@ -104,6 +107,34 @@ public class TranscriptionOutputService
 
         // return the next top-level bullet point index
         return nextTopLevelBullet;
+    }
+
+    // function that gets the initial journal content (from template or default)
+    private string GetInitialJournalContent()
+    {
+        // if template path is specified and exists, use it
+        if (!string.IsNullOrEmpty(_journalTemplatePath) && File.Exists(_journalTemplatePath))
+        {
+            var template = File.ReadAllText(_journalTemplatePath);
+            
+            // ensure template ends with newline for proper formatting
+            if (!template.EndsWith("\n") && !template.EndsWith("\r\n"))
+            {
+                template += "\n";
+            }
+            
+            // if template doesn't contain the audio recordings heading as a list item, append it
+            if (!template.Contains($"- {AudioRecordingsHeading}") && 
+                !template.Contains($"* {AudioRecordingsHeading}"))
+            {
+                template += $"- {AudioRecordingsHeading}\n";
+            }
+            
+            return template;
+        }
+        
+        // fallback to default format
+        return $"- {AudioRecordingsHeading}\n";
     }
 
 

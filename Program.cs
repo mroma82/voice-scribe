@@ -47,7 +47,7 @@ logger.LogInformation("Logseq graph: {LogseqPath}", config.LogseqPath);
 
 // setup service
 var transcriptionService = new AudioTranscriptionService(config.OpenAiKey);
-var outputService = new TranscriptionOutputService(config.LogseqPath);
+var outputService = new TranscriptionOutputService(config.LogseqPath, config.JournalTemplate);
 var fileProcessorLogger = loggerFactory.CreateLogger<FileProcessorService>();
 var fileProcessor = new FileProcessorService(
     config.InputFolder,
