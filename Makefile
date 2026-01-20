@@ -6,7 +6,7 @@ PUBLISH_APP := VoiceScribe
 CONFIGURATION := Release
 RUNTIME := linux-x64
 PUBLISH_DIR := bin/publish
-INSTALL_DIR := $(HOME)/.local/bin
+INSTALL_DIR := /usr/local/bin
 
 # .NET commands
 DOTNET := dotnet
@@ -32,7 +32,7 @@ test:
 publish:
 	$(DOTNET) publish VoiceScribe.csproj -c $(CONFIGURATION) -r $(RUNTIME) --self-contained true /p:PublishSingleFile=true -o $(PUBLISH_DIR)
 
-# Install to ~/.local/bin
+# Install to /usr/local/bin
 install: publish
 	@mkdir -p $(INSTALL_DIR)
 	@cp $(PUBLISH_DIR)/$(PUBLISH_APP) $(INSTALL_DIR)/$(APP_NAME)
@@ -40,7 +40,7 @@ install: publish
 	@echo "Installed $(APP_NAME) to $(INSTALL_DIR)"
 	@echo "Make sure $(INSTALL_DIR) is in your PATH"
 
-# Uninstall from ~/.local/bin
+# Uninstall from /usr/local/bin
 uninstall:
 	@rm -f $(INSTALL_DIR)/$(APP_NAME)
 	@echo "Uninstalled $(APP_NAME) from $(INSTALL_DIR)"
@@ -58,8 +58,8 @@ help:
 	@echo "  build     - Build the application (default)"
 	@echo "  test      - Run tests"
 	@echo "  publish   - Publish self-contained executable"
-	@echo "  install   - Install to ~/.local/bin"
-	@echo "  uninstall - Remove from ~/.local/bin"
+	@echo "  install   - Install to /usr/local/bin"
+	@echo "  uninstall - Remove from /usr/local/bin"
 	@echo "  clean     - Clean build artifacts"
 	@echo ""
 	@echo "Configuration:"
