@@ -17,6 +17,12 @@ public class TranscriptionOutputService
     {
         _notesSystem = notesSystem.ToLower();
         
+        // validate notes system
+        if (_notesSystem != "logseq" && _notesSystem != "obsidian")
+        {
+            throw new ArgumentException($"Invalid notes system: {_notesSystem}. Must be 'logseq' or 'obsidian'.", nameof(notesSystem));
+        }
+        
         // find the notes path based on the system
         if (_notesSystem == "obsidian")
         {
