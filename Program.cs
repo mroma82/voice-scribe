@@ -1,13 +1,6 @@
+using digital_recorder.Models;
 using digital_recorder.Services;
 using Microsoft.Extensions.Logging;
-
-const string InputFolder = "input";
-const string CompletedFolder = "completed";
-const string FailedFolder = "failed";
-
-var logseqPath = Path.Combine(
-    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-    "Notes");
 
 using var loggerFactory = LoggerFactory.Create(builder =>
 {
@@ -20,29 +13,41 @@ var logger = loggerFactory.CreateLogger<Program>();
 
 logger.LogInformation("Audio WAV File Processor starting");
 
-var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
-if (string.IsNullOrWhiteSpace(apiKey))
+AppConfig config;
+try
 {
-    logger.LogCritical("OPENAI_API_KEY environment variable is not set");
+    config = ConfigurationService.Load();
+}
+catch (FileNotFoundException)
+{
+    logger.LogWarning("Configuration file not found, creating default at {Path}", ConfigurationService.GetConfigPath());
+    ConfigurationService.CreateDefaultConfig();
+    logger.LogInformation("Please edit the configuration file and run again");
     return 1;
 }
 
-if (!Directory.Exists(logseqPath))
+if (string.IsNullOrWhiteSpace(config.OpenAiKey) || config.OpenAiKey == "your-openai-api-key-here")
 {
-    logger.LogCritical("Logseq graph not found at {Path}", logseqPath);
+    logger.LogCritical("OpenAI API key not configured in {Path}", ConfigurationService.GetConfigPath());
     return 1;
 }
 
-logger.LogInformation("Input folder: {InputFolder}", InputFolder);
-logger.LogInformation("Logseq graph: {LogseqPath}", logseqPath);
+if (!Directory.Exists(config.LogseqPath))
+{
+    logger.LogCritical("Logseq graph not found at {Path}", config.LogseqPath);
+    return 1;
+}
 
-var transcriptionService = new AudioTranscriptionService(apiKey);
-var outputService = new TranscriptionOutputService(logseqPath);
+logger.LogInformation("Input folder: {InputFolder}", config.InputFolder);
+logger.LogInformation("Logseq graph: {LogseqPath}", config.LogseqPath);
+
+var transcriptionService = new AudioTranscriptionService(config.OpenAiKey);
+var outputService = new TranscriptionOutputService(config.LogseqPath);
 var fileProcessorLogger = loggerFactory.CreateLogger<FileProcessorService>();
 var fileProcessor = new FileProcessorService(
-    InputFolder,
-    CompletedFolder,
-    FailedFolder,
+    config.InputFolder,
+    config.CompletedFolder,
+    config.FailedFolder,
     transcriptionService,
     outputService,
     fileProcessorLogger);
