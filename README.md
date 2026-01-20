@@ -1,4 +1,4 @@
-# Digital Recorder
+# VoiceScribe
 
 A .NET 9.0 console application that processes WAV audio files, transcribes them using OpenAI's Whisper API, and writes the transcriptions to Logseq journal files.
 
@@ -20,14 +20,21 @@ A .NET 9.0 console application that processes WAV audio files, transcribes them 
 
 ```bash
 git clone <repository-url>
-cd digital-recorder
+cd voicescribe
 dotnet restore
 dotnet build
 ```
 
+Or use the Makefile:
+
+```bash
+make build
+make install  # Installs to ~/.local/bin
+```
+
 ## Configuration
 
-Configuration is loaded from `~/.config/digital-recorder/config.yaml`. On first run, a default configuration file is created.
+Configuration is loaded from `~/.config/voicescribe/config.yaml`. On first run, a default configuration file is created.
 
 ### Config File
 
@@ -55,27 +62,27 @@ Environment variables override config file values:
 
 | Variable | Overrides |
 |----------|-----------|
-| `DIGITAL_RECORDER_INPUT_FOLDER` | `input_folder` |
-| `DIGITAL_RECORDER_COMPLETED_FOLDER` | `completed_folder` |
-| `DIGITAL_RECORDER_FAILED_FOLDER` | `failed_folder` |
-| `DIGITAL_RECORDER_OPENAI_KEY` | `open_ai_key` |
-| `DIGITAL_RECORDER_LOGSEQ_PATH` | `logseq_path` |
+| `VOICESCRIBE_INPUT_FOLDER` | `input_folder` |
+| `VOICESCRIBE_COMPLETED_FOLDER` | `completed_folder` |
+| `VOICESCRIBE_FAILED_FOLDER` | `failed_folder` |
+| `VOICESCRIBE_OPENAI_KEY` | `open_ai_key` |
+| `VOICESCRIBE_LOGSEQ_PATH` | `logseq_path` |
 | `OPENAI_API_KEY` | `open_ai_key` (fallback) |
 
 ## Usage
 
 1. Run once to generate the default config:
    ```bash
-   dotnet run
+   voicescribe
    ```
 
-2. Edit `~/.config/digital-recorder/config.yaml` with your settings.
+2. Edit `~/.config/voicescribe/config.yaml` with your settings.
 
 3. Place WAV files in the input folder. Files must be named with the format `R<yyyyMMddHHmmss>.WAV` (e.g., `R20260103110314.WAV`).
 
 4. Run the application:
    ```bash
-   dotnet run
+   voicescribe
    ```
 
 5. Processed files are moved to `completed/`. Failed files are moved to `failed/`.
@@ -83,7 +90,7 @@ Environment variables override config file values:
 ## Folder Structure
 
 ```
-digital-recorder/
+voicescribe/
 ├── Services/       # Application services
 ├── Models/         # Data models
 ├── Utilities/      # Helper utilities

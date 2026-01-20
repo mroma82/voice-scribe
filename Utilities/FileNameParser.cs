@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace digital_recorder.Utilities;
+namespace VoiceScribe.Utilities;
 
 public static class FileNameParser
 {

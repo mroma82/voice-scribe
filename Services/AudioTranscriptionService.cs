@@ -1,6 +1,6 @@
 using OpenAI.Audio;
 
-namespace digital_recorder.Services;
+namespace VoiceScribe.Services;
 
 public sealed class AudioTranscriptionService
 {

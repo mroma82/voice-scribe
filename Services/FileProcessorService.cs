@@ -1,9 +1,9 @@
 using System.Diagnostics;
-using digital_recorder.Models;
-using digital_recorder.Utilities;
+using VoiceScribe.Models;
+using VoiceScribe.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace digital_recorder.Services;
+namespace VoiceScribe.Services;
 
 public class FileProcessorService
 {

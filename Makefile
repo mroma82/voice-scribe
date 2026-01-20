@@ -1,7 +1,8 @@
-# Digital Recorder Makefile
+# VoiceScribe Makefile
 
 # Configuration
-APP_NAME := digital-recorder
+APP_NAME := voicescribe
+PUBLISH_APP := VoiceScribe
 CONFIGURATION := Release
 RUNTIME := linux-x64
 PUBLISH_DIR := bin/publish
@@ -19,18 +20,22 @@ all: build
 build:
 	$(DOTNET) build -c $(CONFIGURATION)
 
+# Run the application
+run:
+	$(DOTNET) run -c $(CONFIGURATION)
+
 # Run tests
 test:
 	$(DOTNET) test -c $(CONFIGURATION)
 
 # Publish self-contained executable
 publish:
-	$(DOTNET) publish -c $(CONFIGURATION) -r $(RUNTIME) --self-contained false -o $(PUBLISH_DIR)
+	$(DOTNET) publish VoiceScribe.csproj -c $(CONFIGURATION) -r $(RUNTIME) --self-contained true /p:PublishSingleFile=true -o $(PUBLISH_DIR)
 
 # Install to ~/.local/bin
 install: publish
 	@mkdir -p $(INSTALL_DIR)
-	@cp $(PUBLISH_DIR)/$(APP_NAME) $(INSTALL_DIR)/$(APP_NAME)
+	@cp $(PUBLISH_DIR)/$(PUBLISH_APP) $(INSTALL_DIR)/$(APP_NAME)
 	@chmod +x $(INSTALL_DIR)/$(APP_NAME)
 	@echo "Installed $(APP_NAME) to $(INSTALL_DIR)"
 	@echo "Make sure $(INSTALL_DIR) is in your PATH"

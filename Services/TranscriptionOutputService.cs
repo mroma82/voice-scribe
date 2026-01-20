@@ -1,6 +1,6 @@
-using digital_recorder.Models;
+using VoiceScribe.Models;
 
-namespace digital_recorder.Services;
+namespace VoiceScribe.Services;
 
 public class TranscriptionOutputService
 {

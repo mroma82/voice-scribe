@@ -2,7 +2,7 @@
 
 ## Project Information
 
-- **Name:** digital-recorder
+- **Name:** VoiceScribe
 - **Version:** 1.0.0
 - **Target Framework:** .NET 9.0
 - **Generated:** 2026-01-18
@@ -14,6 +14,7 @@
 | Microsoft.Extensions.Logging | 9.0.0 | MIT |
 | Microsoft.Extensions.Logging.Console | 9.0.0 | MIT |
 | OpenAI | 2.1.0 | MIT |
+| YamlDotNet | 16.2.1 | MIT |
 
 ## Transitive Dependencies
 

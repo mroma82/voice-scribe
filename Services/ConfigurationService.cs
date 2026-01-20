@@ -1,8 +1,8 @@
-using digital_recorder.Models;
+using VoiceScribe.Models;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
-namespace digital_recorder.Services;
+namespace VoiceScribe.Services;
 
 public static class ConfigurationService
 {
@@ -10,7 +10,7 @@ public static class ConfigurationService
     private static readonly string ConfigDirectory = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
         ".config",
-        "digital-recorder");
+        "voicescribe");
 
     // config path
     private static readonly string ConfigPath = Path.Combine(ConfigDirectory, "config.yaml");
@@ -53,24 +53,24 @@ public static class ConfigurationService
     // function that applies environment variable overrides
     private static void ApplyEnvironmentOverrides(AppConfig config)
     {
-        var inputFolder = Environment.GetEnvironmentVariable("DIGITAL_RECORDER_INPUT_FOLDER");
+        var inputFolder = Environment.GetEnvironmentVariable("VOICESCRIBE_INPUT_FOLDER");
         if (!string.IsNullOrEmpty(inputFolder))
             config.InputFolder = inputFolder;
 
-        var completedFolder = Environment.GetEnvironmentVariable("DIGITAL_RECORDER_COMPLETED_FOLDER");
+        var completedFolder = Environment.GetEnvironmentVariable("VOICESCRIBE_COMPLETED_FOLDER");
         if (!string.IsNullOrEmpty(completedFolder))
             config.CompletedFolder = completedFolder;
 
-        var failedFolder = Environment.GetEnvironmentVariable("DIGITAL_RECORDER_FAILED_FOLDER");
+        var failedFolder = Environment.GetEnvironmentVariable("VOICESCRIBE_FAILED_FOLDER");
         if (!string.IsNullOrEmpty(failedFolder))
             config.FailedFolder = failedFolder;
 
-        var openAiKey = Environment.GetEnvironmentVariable("DIGITAL_RECORDER_OPENAI_KEY")
+        var openAiKey = Environment.GetEnvironmentVariable("VOICESCRIBE_OPENAI_KEY")
                         ?? Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         if (!string.IsNullOrEmpty(openAiKey))
             config.OpenAiKey = openAiKey;
 
-        var logseqPath = Environment.GetEnvironmentVariable("DIGITAL_RECORDER_LOGSEQ_PATH");
+        var logseqPath = Environment.GetEnvironmentVariable("VOICESCRIBE_LOGSEQ_PATH");
         if (!string.IsNullOrEmpty(logseqPath))
             config.LogseqPath = logseqPath;
     }

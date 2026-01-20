@@ -1,5 +1,5 @@
-﻿using digital_recorder.Models;
-using digital_recorder.Services;
+﻿using VoiceScribe.Models;
+using VoiceScribe.Services;
 using Microsoft.Extensions.Logging;
 
 // setup the logger

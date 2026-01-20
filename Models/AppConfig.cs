@@ -1,4 +1,4 @@
-namespace digital_recorder.Models;
+namespace VoiceScribe.Models;
 
 public class AppConfig
 {
