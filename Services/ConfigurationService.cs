@@ -45,6 +45,8 @@ public static class ConfigurationService
         config.InputFolder = ExpandPath(config.InputFolder);
         config.CompletedFolder = ExpandPath(config.CompletedFolder);
         config.FailedFolder = ExpandPath(config.FailedFolder);
+        if (!string.IsNullOrEmpty(config.JournalTemplate))
+            config.JournalTemplate = ExpandPath(config.JournalTemplate);
 
         // return
         return config;
@@ -73,6 +75,10 @@ public static class ConfigurationService
         var logseqPath = Environment.GetEnvironmentVariable("VOICESCRIBE_LOGSEQ_PATH");
         if (!string.IsNullOrEmpty(logseqPath))
             config.LogseqPath = logseqPath;
+
+        var journalTemplate = Environment.GetEnvironmentVariable("VOICESCRIBE_JOURNAL_TEMPLATE");
+        if (!string.IsNullOrEmpty(journalTemplate))
+            config.JournalTemplate = journalTemplate;
     }
 
     // function that creates a default config
