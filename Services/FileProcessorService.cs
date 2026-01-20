@@ -7,6 +7,7 @@ namespace digital_recorder.Services;
 
 public class FileProcessorService
 {
+    // define inputs
     private readonly string _inputFolder;
     private readonly string _completedFolder;
     private readonly string _failedFolder;
@@ -14,6 +15,7 @@ public class FileProcessorService
     private readonly TranscriptionOutputService _outputService;
     private readonly ILogger<FileProcessorService> _logger;
 
+    // new
     public FileProcessorService(
         string inputFolder,
         string completedFolder,
@@ -29,24 +31,28 @@ public class FileProcessorService
         _outputService = outputService;
         _logger = logger;
 
+        // make sure directories exist
         EnsureDirectoriesExist();
     }
 
+    // create directories for outputs
     private void EnsureDirectoriesExist()
     {
-        Directory.CreateDirectory(_inputFolder);
         Directory.CreateDirectory(_completedFolder);
         Directory.CreateDirectory(_failedFolder);
     }
 
+    // process all files
     public async Task<(int Processed, int Failed)> ProcessAllFilesAsync(CancellationToken cancellationToken = default)
     {
+        // find the wave files
         var wavFiles = Directory.GetFiles(_inputFolder, "*.WAV", SearchOption.TopDirectoryOnly)
             .Concat(Directory.GetFiles(_inputFolder, "*.wav", SearchOption.TopDirectoryOnly))
             .Distinct()
             .OrderBy(f => Path.GetFileName(f))
             .ToList();
 
+        // check if none
         if (wavFiles.Count == 0)
         {
             _logger.LogInformation("No WAV files found in input folder");
@@ -55,18 +61,23 @@ public class FileProcessorService
 
         _logger.LogInformation("Found {Count} WAV file(s) to process", wavFiles.Count);
 
+        // track progress
         int processed = 0;
         int failed = 0;
 
+        // run through each
         foreach (var filePath in wavFiles)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            // get the filename
             var fileName = Path.GetFileName(filePath);
             _logger.LogInformation("Processing: {FileName}", fileName);
 
+            // process a single file
             var success = await ProcessFileAsync(filePath, cancellationToken);
 
+            // check if ok
             if (success)
             {
                 processed++;
@@ -79,15 +90,19 @@ public class FileProcessorService
             }
         }
 
+        // return status
         return (processed, failed);
     }
 
+    // function that processes a single task
     private async Task<bool> ProcessFileAsync(string filePath, CancellationToken cancellationToken)
     {
+        // get hte filename
         var fileName = Path.GetFileName(filePath);
 
         try
         {
+            // get the timestamp from the filename
             var timestamp = FileNameParser.TryParseTimestamp(fileName);
             if (timestamp is null)
             {
@@ -96,10 +111,12 @@ public class FileProcessorService
                 return false;
             }
 
+            // transcribe and time
             var stopwatch = Stopwatch.StartNew();
             var transcribedText = await _transcriptionService.TranscribeAsync(filePath, cancellationToken);
             stopwatch.Stop();
 
+            // check if no text
             if (string.IsNullOrWhiteSpace(transcribedText))
             {
                 _logger.LogError("Empty transcription result for {FileName}", fileName);
@@ -107,6 +124,7 @@ public class FileProcessorService
                 return false;
             }
 
+            // return the result
             var result = new TranscriptionResult(
                 SourceFileName: fileName,
                 RecordingTimestamp: timestamp.Value,
@@ -114,9 +132,11 @@ public class FileProcessorService
                 ProcessingDuration: stopwatch.Elapsed
             );
 
+            // handle the output
             _outputService.AppendTranscription(result);
             _logger.LogDebug("Transcription saved for {FileName} in {Duration:F1}s", fileName, stopwatch.Elapsed.TotalSeconds);
 
+            // move the file to completed
             MoveToCompleted(filePath, fileName);
             return true;
         }
@@ -128,20 +148,24 @@ public class FileProcessorService
         }
     }
 
+    // funciton that moves the file to completed
     private void MoveToCompleted(string sourcePath, string fileName)
     {
         var destinationPath = Path.Combine(_completedFolder, fileName);
         MoveFile(sourcePath, destinationPath);
     }
 
+    // function that moves the file to failed
     private void MoveToFailed(string sourcePath, string fileName)
     {
         var destinationPath = Path.Combine(_failedFolder, fileName);
         MoveFile(sourcePath, destinationPath);
     }
 
+    // function that moves a file, handling name conflicts
     private static void MoveFile(string sourcePath, string destinationPath)
     {
+        // handle name conflicts by appending a timestamp
         if (File.Exists(destinationPath))
         {
             var baseName = Path.GetFileNameWithoutExtension(destinationPath);
@@ -151,6 +175,7 @@ public class FileProcessorService
             destinationPath = Path.Combine(directory, $"{baseName}_{timestamp}{extension}");
         }
 
+        // move
         File.Move(sourcePath, destinationPath);
     }
 }

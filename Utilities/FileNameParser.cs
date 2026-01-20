@@ -4,9 +4,11 @@ namespace digital_recorder.Utilities;
 
 public static class FileNameParser
 {
+    // constants
     private const string FileNamePrefix = "R";
     private const string DateTimeFormat = "yyyyMMddHHmmss";
 
+    // function that tries to parse timestamp from file name
     public static DateTime? TryParseTimestamp(string fileName)
     {
         var name = Path.GetFileNameWithoutExtension(fileName);
@@ -27,6 +29,7 @@ public static class FileNameParser
         return null;
     }
 
+    // function that formats timestamp for display
     public static string FormatTimestampForDisplay(DateTime timestamp)
     {
         return timestamp.ToString("MMMM d, yyyy 'at' h:mm:ss tt", CultureInfo.InvariantCulture);
