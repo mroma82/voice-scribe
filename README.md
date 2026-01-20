@@ -14,7 +14,7 @@ A .NET 9.0 console application that processes WAV audio files, transcribes them 
 
 - .NET 9.0 SDK
 - OpenAI API key
-- Logseq graph at `~/Notes`
+- Logseq graph
 
 ## Installation
 
@@ -25,21 +25,60 @@ dotnet restore
 dotnet build
 ```
 
+## Configuration
+
+Configuration is loaded from `~/.config/digital-recorder/config.yaml`. On first run, a default configuration file is created.
+
+### Config File
+
+```yaml
+input_folder: input
+completed_folder: completed
+failed_folder: failed
+open_ai_key: your-openai-api-key-here
+logseq_path: ~/Notes
+```
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `input_folder` | Folder to scan for WAV files | `input` |
+| `completed_folder` | Destination for processed files | `completed` |
+| `failed_folder` | Destination for failed files | `failed` |
+| `open_ai_key` | OpenAI API key for Whisper | (required) |
+| `logseq_path` | Path to Logseq graph | (required) |
+
+Paths support `~/` expansion for home directory.
+
+### Environment Variables
+
+Environment variables override config file values:
+
+| Variable | Overrides |
+|----------|-----------|
+| `DIGITAL_RECORDER_INPUT_FOLDER` | `input_folder` |
+| `DIGITAL_RECORDER_COMPLETED_FOLDER` | `completed_folder` |
+| `DIGITAL_RECORDER_FAILED_FOLDER` | `failed_folder` |
+| `DIGITAL_RECORDER_OPENAI_KEY` | `open_ai_key` |
+| `DIGITAL_RECORDER_LOGSEQ_PATH` | `logseq_path` |
+| `OPENAI_API_KEY` | `open_ai_key` (fallback) |
+
 ## Usage
 
-1. Set your OpenAI API key:
-   ```bash
-   export OPENAI_API_KEY="your-api-key-here"
-   ```
-
-2. Place WAV files in the `input/` folder. Files must be named with the format `R<yyyyMMddHHmmss>.WAV` (e.g., `R20260103110314.WAV`).
-
-3. Run the application:
+1. Run once to generate the default config:
    ```bash
    dotnet run
    ```
 
-4. Processed files are moved to `completed/`. Failed files are moved to `failed/`.
+2. Edit `~/.config/digital-recorder/config.yaml` with your settings.
+
+3. Place WAV files in the input folder. Files must be named with the format `R<yyyyMMddHHmmss>.WAV` (e.g., `R20260103110314.WAV`).
+
+4. Run the application:
+   ```bash
+   dotnet run
+   ```
+
+5. Processed files are moved to `completed/`. Failed files are moved to `failed/`.
 
 ## Folder Structure
 

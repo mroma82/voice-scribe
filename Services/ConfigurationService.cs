@@ -30,12 +30,38 @@ public static class ConfigurationService
         var config = deserializer.Deserialize<AppConfig>(yaml)
             ?? throw new InvalidOperationException("Failed to parse configuration file.");
 
+        ApplyEnvironmentOverrides(config);
+
         config.LogseqPath = ExpandPath(config.LogseqPath);
         config.InputFolder = ExpandPath(config.InputFolder);
         config.CompletedFolder = ExpandPath(config.CompletedFolder);
         config.FailedFolder = ExpandPath(config.FailedFolder);
 
         return config;
+    }
+
+    private static void ApplyEnvironmentOverrides(AppConfig config)
+    {
+        var inputFolder = Environment.GetEnvironmentVariable("DIGITAL_RECORDER_INPUT_FOLDER");
+        if (!string.IsNullOrEmpty(inputFolder))
+            config.InputFolder = inputFolder;
+
+        var completedFolder = Environment.GetEnvironmentVariable("DIGITAL_RECORDER_COMPLETED_FOLDER");
+        if (!string.IsNullOrEmpty(completedFolder))
+            config.CompletedFolder = completedFolder;
+
+        var failedFolder = Environment.GetEnvironmentVariable("DIGITAL_RECORDER_FAILED_FOLDER");
+        if (!string.IsNullOrEmpty(failedFolder))
+            config.FailedFolder = failedFolder;
+
+        var openAiKey = Environment.GetEnvironmentVariable("DIGITAL_RECORDER_OPENAI_KEY")
+                        ?? Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+        if (!string.IsNullOrEmpty(openAiKey))
+            config.OpenAiKey = openAiKey;
+
+        var logseqPath = Environment.GetEnvironmentVariable("DIGITAL_RECORDER_LOGSEQ_PATH");
+        if (!string.IsNullOrEmpty(logseqPath))
+            config.LogseqPath = logseqPath;
     }
 
     public static void CreateDefaultConfig()
