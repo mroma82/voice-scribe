@@ -84,9 +84,6 @@ Environment variables override config file values:
 
 ```
 digital-recorder/
-├── input/          # Place WAV files here
-├── completed/      # Successfully processed files
-├── failed/         # Files that failed processing
 ├── Services/       # Application services
 ├── Models/         # Data models
 ├── Utilities/      # Helper utilities
