@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Support for Obsidian as an alternative to Logseq
+- Configuration option `notes_system` to select between "logseq" and "obsidian"
+- Configuration option `obsidian_path` for Obsidian vault location
+- Configuration option `obsidian_daily_notes_folder` for custom daily notes location
+- Environment variables for Obsidian configuration
+
+### Changed
+
+- `TranscriptionOutputService` now supports both Logseq and Obsidian output formats
+- Obsidian uses `YYYY-MM-DD.md` date format (vs Logseq's `YYYY_MM_DD.md`)
+- Obsidian uses standard markdown headings (vs Logseq's outliner format)
+
 ## [0.0.2] - 2026-01-19
 
 ### Changed

@@ -7,4 +7,7 @@ public class AppConfig
     public string FailedFolder { get; set; } = "failed";
     public string OpenAiKey { get; set; } = string.Empty;
     public string LogseqPath { get; set; } = string.Empty;
+    public string NotesSystem { get; set; } = "logseq";
+    public string ObsidianPath { get; set; } = string.Empty;
+    public string ObsidianDailyNotesFolder { get; set; } = "";
 }

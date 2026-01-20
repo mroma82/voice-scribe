@@ -1,12 +1,12 @@
 # VoiceScribe
 
-A .NET 9.0 console application that processes WAV audio files, transcribes them using OpenAI's Whisper API, and writes the transcriptions to Logseq journal files.
+A .NET 9.0 console application that processes WAV audio files, transcribes them using OpenAI's Whisper API, and writes the transcriptions to Logseq or Obsidian journal files.
 
 ## Features
 
 - Batch processes WAV files from an input folder
 - Transcribes audio using OpenAI Whisper API with automatic language detection
-- Writes transcriptions to Logseq journal files organized by recording date
+- Writes transcriptions to Logseq or Obsidian daily notes organized by recording date
 - Parses recording timestamps from filenames (format: `R20260103110314.WAV`)
 - Moves processed files to completed/failed folders
 
@@ -14,7 +14,7 @@ A .NET 9.0 console application that processes WAV audio files, transcribes them 
 
 - .NET 9.0 SDK
 - OpenAI API key
-- Logseq graph
+- Logseq graph or Obsidian vault
 
 ## Installation
 
@@ -43,7 +43,10 @@ input_folder: input
 completed_folder: completed
 failed_folder: failed
 open_ai_key: your-openai-api-key-here
+notes_system: logseq  # or "obsidian"
 logseq_path: ~/Notes
+obsidian_path: ~/Documents/ObsidianVault
+obsidian_daily_notes_folder: ""  # optional subfolder for daily notes (e.g., "Daily Notes")
 ```
 
 | Option | Description | Default |
@@ -52,7 +55,10 @@ logseq_path: ~/Notes
 | `completed_folder` | Destination for processed files | `completed` |
 | `failed_folder` | Destination for failed files | `failed` |
 | `open_ai_key` | OpenAI API key for Whisper | (required) |
-| `logseq_path` | Path to Logseq graph | (required) |
+| `notes_system` | Note-taking system to use | `logseq` |
+| `logseq_path` | Path to Logseq graph | (required if using Logseq) |
+| `obsidian_path` | Path to Obsidian vault | (required if using Obsidian) |
+| `obsidian_daily_notes_folder` | Subfolder for Obsidian daily notes | `""` (vault root) |
 
 Paths support `~/` expansion for home directory.
 
@@ -66,7 +72,10 @@ Environment variables override config file values:
 | `VOICESCRIBE_COMPLETED_FOLDER` | `completed_folder` |
 | `VOICESCRIBE_FAILED_FOLDER` | `failed_folder` |
 | `VOICESCRIBE_OPENAI_KEY` | `open_ai_key` |
+| `VOICESCRIBE_NOTES_SYSTEM` | `notes_system` |
 | `VOICESCRIBE_LOGSEQ_PATH` | `logseq_path` |
+| `VOICESCRIBE_OBSIDIAN_PATH` | `obsidian_path` |
+| `VOICESCRIBE_OBSIDIAN_DAILY_NOTES_FOLDER` | `obsidian_daily_notes_folder` |
 | `OPENAI_API_KEY` | `open_ai_key` (fallback) |
 
 ## Usage
@@ -99,6 +108,8 @@ voicescribe/
 
 ## Output Format
 
+### Logseq
+
 Transcriptions are written to Logseq journal files at `~/Notes/journals/YYYY_MM_DD.md`:
 
 ```markdown
@@ -107,6 +118,18 @@ Transcriptions are written to Logseq journal files at `~/Notes/journals/YYYY_MM_
 		- [transcribed text...]
 	- ### 11:04:52 AM
 		- [another transcription...]
+```
+
+### Obsidian
+
+Transcriptions are written to Obsidian daily notes at `~/Documents/ObsidianVault/YYYY-MM-DD.md` (or in the configured daily notes folder):
+
+```markdown
+## Audio Recordings
+### 11:03:14 AM
+  - [transcribed text...]
+### 11:04:52 AM
+  - [another transcription...]
 ```
 
 ## License

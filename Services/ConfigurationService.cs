@@ -42,6 +42,7 @@ public static class ConfigurationService
 
         // expand paths
         config.LogseqPath = ExpandPath(config.LogseqPath);
+        config.ObsidianPath = ExpandPath(config.ObsidianPath);
         config.InputFolder = ExpandPath(config.InputFolder);
         config.CompletedFolder = ExpandPath(config.CompletedFolder);
         config.FailedFolder = ExpandPath(config.FailedFolder);
@@ -73,6 +74,18 @@ public static class ConfigurationService
         var logseqPath = Environment.GetEnvironmentVariable("VOICESCRIBE_LOGSEQ_PATH");
         if (!string.IsNullOrEmpty(logseqPath))
             config.LogseqPath = logseqPath;
+
+        var notesSystem = Environment.GetEnvironmentVariable("VOICESCRIBE_NOTES_SYSTEM");
+        if (!string.IsNullOrEmpty(notesSystem))
+            config.NotesSystem = notesSystem;
+
+        var obsidianPath = Environment.GetEnvironmentVariable("VOICESCRIBE_OBSIDIAN_PATH");
+        if (!string.IsNullOrEmpty(obsidianPath))
+            config.ObsidianPath = obsidianPath;
+
+        var obsidianDailyNotesFolder = Environment.GetEnvironmentVariable("VOICESCRIBE_OBSIDIAN_DAILY_NOTES_FOLDER");
+        if (!string.IsNullOrEmpty(obsidianDailyNotesFolder))
+            config.ObsidianDailyNotesFolder = obsidianDailyNotesFolder;
     }
 
     // function that creates a default config
@@ -88,7 +101,10 @@ public static class ConfigurationService
             CompletedFolder = "completed",
             FailedFolder = "failed",
             OpenAiKey = "your-openai-api-key-here",
-            LogseqPath = "~/Notes"
+            LogseqPath = "~/Notes",
+            NotesSystem = "logseq",
+            ObsidianPath = "~/Documents/ObsidianVault",
+            ObsidianDailyNotesFolder = ""
         };
 
         // serialize to YAML
