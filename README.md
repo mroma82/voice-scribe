@@ -29,7 +29,7 @@ Or use the Makefile:
 
 ```bash
 make build
-make install  # Installs to ~/.local/bin
+make install  # Installs to /usr/local/bin (requires sudo)
 ```
 
 ## Configuration
