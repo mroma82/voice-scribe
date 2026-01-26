@@ -35,19 +35,46 @@ if (string.IsNullOrWhiteSpace(config.OpenAiKey) || config.OpenAiKey == "your-ope
     return 1;
 }
 
-// verify logseq path exists
-if (!Directory.Exists(config.LogseqPath))
+// normalize notes system
+config.NotesSystem = config.NotesSystem.ToLower();
+
+// verify notes system configuration
+if (config.NotesSystem == "logseq")
 {
-    logger.LogCritical("Logseq graph not found at {Path}", config.LogseqPath);
+    if (!Directory.Exists(config.LogseqPath))
+    {
+        logger.LogCritical("Logseq graph not found at {Path}", config.LogseqPath);
+        return 1;
+    }
+    logger.LogInformation("Notes system: Logseq");
+    logger.LogInformation("Logseq graph: {LogseqPath}", config.LogseqPath);
+}
+else if (config.NotesSystem == "obsidian")
+{
+    if (!Directory.Exists(config.ObsidianPath))
+    {
+        logger.LogCritical("Obsidian vault not found at {Path}", config.ObsidianPath);
+        return 1;
+    }
+    logger.LogInformation("Notes system: Obsidian");
+    logger.LogInformation("Obsidian vault: {ObsidianPath}", config.ObsidianPath);
+    if (!string.IsNullOrEmpty(config.ObsidianDailyNotesFolder))
+    {
+        logger.LogInformation("Daily notes folder: {DailyNotesFolder}", config.ObsidianDailyNotesFolder);
+    }
+}
+else
+{
+    logger.LogCritical("Invalid notes_system: {NotesSystem}. Must be 'logseq' or 'obsidian'", config.NotesSystem);
     return 1;
 }
 
 logger.LogInformation("Input folder: {InputFolder}", config.InputFolder);
-logger.LogInformation("Logseq graph: {LogseqPath}", config.LogseqPath);
 
 // setup service
 var transcriptionService = new AudioTranscriptionService(config.OpenAiKey);
-var outputService = new TranscriptionOutputService(config.LogseqPath);
+var notesPath = config.NotesSystem == "obsidian" ? config.ObsidianPath : config.LogseqPath;
+var outputService = new TranscriptionOutputService(notesPath, config.NotesSystem, config.ObsidianDailyNotesFolder);
 var fileProcessorLogger = loggerFactory.CreateLogger<FileProcessorService>();
 var fileProcessor = new FileProcessorService(
     config.InputFolder,

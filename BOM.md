@@ -48,4 +48,5 @@
 - .NET 9.0 Runtime
 - Network access to OpenAI API (api.openai.com)
 - File system access for input/output folders
-- Logseq graph directory at ~/Notes
+- Logseq graph directory (if using Logseq)
+- Obsidian vault directory (if using Obsidian)
