@@ -7,4 +7,5 @@ public class AppConfig
     public string FailedFolder { get; set; } = "failed";
     public string OpenAiKey { get; set; } = string.Empty;
     public string LogseqPath { get; set; } = string.Empty;
+    public string? JournalTemplate { get; set; }
 }

@@ -44,6 +44,7 @@ completed_folder: completed
 failed_folder: failed
 open_ai_key: your-openai-api-key-here
 logseq_path: ~/Notes
+journal_template: ~/Notes/templates/journal-template.md
 ```
 
 | Option | Description | Default |
@@ -53,8 +54,29 @@ logseq_path: ~/Notes
 | `failed_folder` | Destination for failed files | `failed` |
 | `open_ai_key` | OpenAI API key for Whisper | (required) |
 | `logseq_path` | Path to Logseq graph | (required) |
+| `journal_template` | Path to journal template file (optional) | none |
 
 Paths support `~/` expansion for home directory.
+
+### Journal Templates
+
+VoiceScribe can use a custom template when creating new journal files. To use this feature:
+
+1. Create a template file with your desired journal structure (e.g., `~/Notes/templates/journal-template.md`):
+   ```markdown
+   - ## Daily Goals
+   	- [ ] Goal 1
+   	- [ ] Goal 2
+   - ## Notes
+   - ## Meetings
+   ```
+
+2. Add the `journal_template` path to your config:
+   ```yaml
+   journal_template: ~/Notes/templates/journal-template.md
+   ```
+
+When a new journal file is created, it will start with your template content. The "Audio Recordings" section will be automatically added if it's not already in your template. If no template is specified or the file doesn't exist, journals are created with just the "Audio Recordings" section (the default behavior).
 
 ### Environment Variables
 
@@ -67,6 +89,7 @@ Environment variables override config file values:
 | `VOICESCRIBE_FAILED_FOLDER` | `failed_folder` |
 | `VOICESCRIBE_OPENAI_KEY` | `open_ai_key` |
 | `VOICESCRIBE_LOGSEQ_PATH` | `logseq_path` |
+| `VOICESCRIBE_JOURNAL_TEMPLATE` | `journal_template` |
 | `OPENAI_API_KEY` | `open_ai_key` (fallback) |
 
 ## Usage
